@@ -1,10 +1,3 @@
-def get_banks(file):
-    banks = [r.split("\n")[0] for r in open(file).readlines()]
-
-    banks = [[int(x) for x in bank] for bank in banks]
-    return banks
-
-
 def convert_to_int(list, desired_length):
     value = 0
     for ix, digit in enumerate(list):
@@ -12,37 +5,56 @@ def convert_to_int(list, desired_length):
     return value
 
 
-def remove_bads(subset, ix, desired_length):
-    subset_length = len(subset)
-    if subset_length > desired_length:
-        min_subset = min(subset)
-        min_ix = subset.index(min_subset)
-        subset.pop(min_ix)
-        return remove_bads(subset, ix, desired_length)
-    return subset
-
-
-def new(banks, desired_length):
+def process_banks(banks, desired_length):
     ans = []
     for bank in banks:
         keep = []
         subset = bank[0 : -desired_length + 1]
         subset_max = max(subset)
         ix = subset.index(subset_max)
-        subset = bank[ix:]
-        subset = remove_bads(subset, 1, desired_length)
-        joltage = convert_to_int(subset, desired_length)
+        keep.append(subset.pop(ix))
+        subset = bank[ix + 1 :]
+        final = process_bank(subset, desired_length, keep)
+        joltage = convert_to_int(final, desired_length)
         ans.append(joltage)
-    print(f"Joltages are:\n{ans}")
     print(f"Joltage total:\t{sum(ans)}")
     print("done")
+
+
+def process_bank(subset, desired_length, keep=[]):
+    reserved_range = desired_length - len(keep)
+    # If there's only one more value to add
+    if reserved_range == 1:
+        keep.append(subset.pop(0))
+        return process_bank(subset, desired_length, keep)
+    # If more than 1 value needs to be added
+    if len(keep) < desired_length:
+        search = subset[0 : -reserved_range + 1]
+        subset_max = max(search)
+        ix = subset.index(subset_max)
+        keep.append(subset[ix])
+        subset = subset[ix + 1 :]
+        return process_bank(subset, desired_length, keep)
+    # If in the reserve pool
+    if len(keep) == desired_length and len(subset) > 0:
+        keep_last = keep[-1]
+        subset_first = subset[0]
+        if keep_last < subset_first:
+            keep.pop(-1)
+            keep.append(subset.pop(0))
+        elif keep_last >= subset_first:
+            subset.pop(0)
+        return process_bank(subset, desired_length, keep)
+    return keep
 
 
 def main():
     file = "./puzzle_inputs/day_03_input.txt"
     # file = "./puzzle_inputs/day_03_sample.txt"
-    banks = get_banks(file)
-    new(banks, 12)
+
+    banks = [r.split("\n")[0] for r in open(file).readlines()]
+    banks = [[int(x) for x in bank] for bank in banks]
+    process_banks(banks, 12)
 
 
 if __name__ == "__main__":
