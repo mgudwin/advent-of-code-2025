@@ -5,6 +5,7 @@ class Map:
         num_columns = len(self.rows[0])
         num_rows = len([row[0] for row in self.rows])
         self.shape = (num_rows, num_columns)
+        self.accessible_rolls = []
 
     def print_map(self):
         [print("".join(row)) for row in self.rows]
@@ -51,20 +52,34 @@ class Map:
                 self.count_of_rolls[(r, c)] = count
 
     def count_of_rolls_with_lt(self, count):
-        accessible_positions = []
         for key, value in self.count_of_rolls.items():
             if value < count:
-                accessible_positions.append(key)
-        print(f"There are {len(accessible_positions)} accessible rolls!")
+                self.accessible_rolls.append(key)
+        self.removable_rolls = len(self.accessible_rolls)
+        print(f"There are {self.removable_rolls} accessible rolls!")
+
+    def remove_rolls(self, count):
+        for key, value in self.count_of_rolls.items():
+            if value < count:
+                self.rows[key[0]][key[1]] = "."
 
 
 def main():
     file = "./puzzle_inputs/day_04_input.txt"
     # file = "./puzzle_inputs/day_04_sample.txt"
     grid = Map(file)
-    # grid.print_map()
     grid.count_rolls()
     grid.count_of_rolls_with_lt(4)
+    grid.remove_rolls(4)
+    runs = 1
+    while runs < 50:
+        i = grid.removable_rolls
+        grid.count_rolls()
+        grid.count_of_rolls_with_lt(4)
+        grid.remove_rolls(4)
+
+    grid.print_map()
+    print("yay")
 
 
 # [00][01][02][03]
