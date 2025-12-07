@@ -47,7 +47,8 @@ class Map:
                     test_value = self.rows[cell[0]][cell[1]]
                     if test_value == "@":
                         count += 1
-                self.count_of_rolls["".join([str(r), str(c)])] = count
+                # self.count_of_rolls["".join([str(r), str(c)])] = count
+                self.count_of_rolls[(r, c)] = count
 
     def count_of_rolls_with_lt(self, count):
         accessible_positions = []
@@ -64,9 +65,6 @@ def main():
     # grid.print_map()
     grid.count_rolls()
     grid.count_of_rolls_with_lt(4)
-    print("Yay")
-    # 11624 too high
-    # 1448
 
 
 # [00][01][02][03]
